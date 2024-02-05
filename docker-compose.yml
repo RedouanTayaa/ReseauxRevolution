@@ -1,0 +1,92 @@
+version: '3'
+
+services:
+  # Service pour le backend (Symfony + PHP)
+  backend:
+    image: ravis-back
+    # Spécifiez le chemin vers le Dockerfile
+    build:
+      context: ./symfony
+      dockerfile: ../docker/back/Dockerfile-backend
+    # Montez le code source de Symfony dans le conteneur
+    volumes:
+      - ./symfony:/var/www/html
+      - /var/www/html/vendor
+      - ./docker/back/init-script.sh:/usr/local/bin/init-script.sh
+    ports:
+      - "9500:9000"  # Port pour PHP-FPM
+    # Dépendances du service backend
+    depends_on:
+      - db
+    # Variables d'environnement
+    environment:
+      APP_ENV: ${APP_ENV}
+      APP_SECRET: ${APP_SECRET}
+      APP_DEBUG: ${APP_DEBUG}
+      DATABASE_URL: ${DATABASE_URL}
+      CORS_ALLOW_ORIGIN: ${CORS_ALLOW_ORIGIN}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY}
+      JWT_PASSPHRASE: ${JWT_PASSPHRASE}
+      SECRET_KEY_TOKEN: ${SECRET_KEY_TOKEN}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENAI_API_URL: ${OPENAI_API_URL}
+      OPENAI_MODEL_NAME: ${OPENAI_MODEL_NAME}
+      MAILER_DSN: ${MAILER_DSN}
+      STRIPE_API_KEY: ${STRIPE_API_KEY}
+      STRIPE_SECRET: ${STRIPE_SECRET}
+      STRIPE_LINK_DASHBOARD: ${STRIPE_LINK_DASHBOARD}
+      BACK_URL: ${BACK_URL}
+      FRONT_URL: ${FRONT_URL}
+      APP_NAME: ${APP_NAME}
+
+  # Service pour la base de données PostgreSQL
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+  # Service pour le serveur web NGINX
+  nginx:
+    image: nginx:latest
+    # Montez le fichier de configuration NGINX dans le conteneur
+    volumes:
+      - ./symfony:/var/www/html
+      - ./docker/back/default.conf:/etc/nginx/conf.d/default.conf
+    # Exposez le port 8080 pour accéder au serveur web
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+
+  # Service pour le front
+  front:
+    image: ravis-front
+    build:
+      context: ./front
+      dockerfile: ../docker/front/Dockerfile
+    volumes:
+      - ./front:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - "4200:4200"
+
+  # Service pour pgadmin
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    ports:
+      - "8081:80"
+
+  # Service pour maildev
+  maildev:
+    image: maildev/maildev
+    container_name: maildev_pompost
+    command: bin/maildev --web 80 --smtp 25 --hide-extensions STARTTLS
+    ports:
+      - "8082:80"
+    restart: always

@@ -1,0 +1,32 @@
+# Utilisez l'image PHP avec FPM comme base
+FROM php:8.2-fpm
+
+WORKDIR /var/www/html
+
+# Installer les extensions PHP et les dépendances nécessaires
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    zlib1g-dev \
+    git \
+    unzip \
+    && docker-php-ext-install pdo pdo_pgsql
+
+# Installez Composer pour la gestion des dépendances PHP
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+# Copiez le code source de l'application Symfony dans le conteneur
+COPY . .
+RUN mkdir -p /var/www/html/vendor
+
+# Installez les dépendances PHP avec Composer
+RUN composer install
+
+RUN curl -sL https://deb.nodesource.com/setup_18.x | bash
+RUN apt-get install nodejs -y
+
+RUN npm install && npm run build
+
+# Exposez le port 9000 pour PHP-FPM
+EXPOSE 9000
+
+ENTRYPOINT ["init-script.sh"]

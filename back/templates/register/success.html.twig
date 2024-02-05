@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Bienvenue!{% endblock %}
+
+{% block body %}
+    <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
+        <div class="sm:mx-auto sm:w-full max-w-7xl">
+            <h2 class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">Votre compte est validé !</h2>
+        </div>
+
+        {# a remettre apres 100 clients #}
+{#        <div class="mt-10 sm:mx-auto sm:w-full max-w-7xl text-center">#}
+{#            <div class="space-y-6">#}
+{#                <div class="block text-sm font-medium leading-6 text-gray-900">Veuillez procéder au paiement pour accéder à l'application.</div>#}
+{#            </div>#}
+
+{#            <p class="mt-10 text-center text-sm text-gray-500">#}
+{#                <a href="{{ path('create_checkout_session', {'planId': planId }) }}" class="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Suivant</a>#}
+{#            </p>#}
+{#        </div>#}
+        <div class="mt-10 sm:mx-auto sm:w-full max-w-7xl text-center">
+            <p class="mt-10 text-center text-sm text-gray-500">
+                <a href="{{ frontUrl }}" class="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Créer une publication</a>
+            </p>
+        </div>
+    </div>
+{% endblock %}
